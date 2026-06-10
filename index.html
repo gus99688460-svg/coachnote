@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0e0e10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>코치노트 · 회원 수업일지</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== 로그인 화면 ===== -->
+  <div id="loginScreen" class="login-screen hidden">
+    <div class="login-box">
+      <div class="brand">COACH<span>NOTE</span></div>
+      <p class="login-sub">회원 수업일지</p>
+      <input id="loginEmail" type="email" placeholder="이메일" autocomplete="username" />
+      <input id="loginPw" type="password" placeholder="비밀번호" autocomplete="current-password" />
+      <button id="loginBtn" class="btn-gold">로그인</button>
+      <p id="loginError" class="login-error"></p>
+    </div>
+  </div>
+
+  <!-- ===== 메인 앱 ===== -->
+  <div id="app" class="app hidden">
+
+    <!-- 상단 바 -->
+    <header class="topbar">
+      <div class="brand-sm">COACH<span>NOTE</span></div>
+      <button id="logoutBtn" class="icon-btn" title="로그아웃">⏻</button>
+    </header>
+
+    <!-- 회원 목록 화면 -->
+    <section id="listView" class="view">
+      <div class="list-head">
+        <input id="searchInput" type="text" placeholder="🔍 회원 검색" />
+        <button id="addMemberBtn" class="btn-gold sm">+ 회원</button>
+      </div>
+      <div id="memberList" class="member-list"></div>
+      <p id="emptyHint" class="empty-hint hidden">아직 등록된 회원이 없어요.<br>오른쪽 위 <b>+ 회원</b>으로 시작하세요.</p>
+    </section>
+
+    <!-- 회원 상세 화면 -->
+    <section id="detailView" class="view hidden">
+      <button id="backBtn" class="back-btn">← 목록</button>
+      <div id="detailContent"></div>
+    </section>
+
+  </div>
+
+  <!-- ===== 회원 추가/수정 모달 ===== -->
+  <div id="memberModal" class="modal hidden">
+    <div class="modal-box">
+      <h3 id="memberModalTitle">회원 추가</h3>
+      <div class="seg" id="m_typeSeg">
+        <button type="button" data-type="PT" class="on">🏋️ PT 회원</button>
+        <button type="button" data-type="OT">🎯 OT 회원</button>
+      </div>
+      <label>이름 *<input id="m_name" type="text" /></label>
+      <div class="row">
+        <label>등록일<input id="m_startDate" type="date" /></label>
+        <label>잔여 회차<input id="m_left" type="number" inputmode="numeric" placeholder="예: 11" /></label>
+      </div>
+      <label>총 등록 회차<input id="m_total" type="number" inputmode="numeric" placeholder="예: 30" /></label>
+      <label>⚠️ 부상·통증·질환<textarea id="m_injury" rows="2" placeholder="예: 우측 무릎 약함, 고중량 스쿼트 시 통증"></textarea></label>
+      <label>운동 제약<textarea id="m_restriction" rows="2" placeholder="예: 점프·고중량 하체 신중"></textarea></label>
+      <label>성향·커뮤니케이션<textarea id="m_personality" rows="2" placeholder="예: 칭찬에 크게 반응, 숫자 압박은 위축"></textarea></label>
+      <div class="row">
+        <label>단기 목표<input id="m_goalShort" type="text" /></label>
+        <label>장기 목표<input id="m_goalLong" type="text" /></label>
+      </div>
+      <label>결제·재등록 메모<input id="m_payment" type="text" placeholder="예: 6월 말 소진 → 중순 상담" /></label>
+      <label>기타(연락처/시간)<input id="m_contact" type="text" /></label>
+      <div class="modal-actions">
+        <button id="deleteMemberBtn" class="btn-danger hidden">삭제</button>
+        <span class="spacer"></span>
+        <button class="btn-ghost" data-close>취소</button>
+        <button id="saveMemberBtn" class="btn-gold">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 수업 일지 추가/수정 모달 ===== -->
+  <div id="lessonModal" class="modal hidden">
+    <div class="modal-box">
+      <h3 id="lessonModalTitle">수업 기록 추가</h3>
+      <div class="row">
+        <label>날짜<input id="l_date" type="date" /></label>
+        <label>회차<input id="l_session" type="text" inputmode="numeric" placeholder="예: 19" /></label>
+      </div>
+      <label>부위·주제<input id="l_topic" type="text" placeholder="예: 하체" /></label>
+      <label>💪 운동·중량<textarea id="l_workout" rows="2" placeholder="예: 스쿼트 30kg 3세트, 레그프레스, 힙쓰러스트"></textarea></label>
+      <label>🩺 컨디션·통증<textarea id="l_condition" rows="2" placeholder="예: 스쿼트 중 우측 무릎 살짝 통증, 중량 내린 뒤 괜찮음"></textarea></label>
+      <label>💬 감정·동기·생활<textarea id="l_emotion" rows="2" placeholder="예: 회사 스트레스 큼, 정체기로 의욕 저하, 칭찬에 밝아짐"></textarea></label>
+      <label>✅ 다음 계획·할 일<textarea id="l_next" rows="2" placeholder="예: 다음에 식단 사진 받기로 약속"></textarea></label>
+      <div class="modal-actions">
+        <button id="deleteLessonBtn" class="btn-danger hidden">삭제</button>
+        <span class="spacer"></span>
+        <button class="btn-ghost" data-close>취소</button>
+        <button id="saveLessonBtn" class="btn-gold">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== OT 상담 입력 모달 ===== -->
+  <div id="otModal" class="modal hidden">
+    <div class="modal-box">
+      <h3>OT 상담 입력</h3>
+      <p class="modal-hint">상담·체험에서 파악한 걸 채우면, 전환 방안이 자동으로 나옵니다. (제안보다 회원의 속마음을 먼저)</p>
+      <label>방문 계기 <span class="lbl-sub">복수 선택</span></label>
+      <div class="chipset" id="ot_motives"></div>
+      <label>구체적 목표·표현한 워딩<input id="ot_goal" type="text" placeholder="예: 결혼식까지 5kg, 옆구리살" /></label>
+      <label>운동 경험</label>
+      <div class="chipset" id="ot_experience"></div>
+      <label>통증·부상·체형 이슈<textarea id="ot_body" rows="2" placeholder="예: 거북목, 우측 어깨 통증"></textarea></label>
+      <label>망설이는 점 · 이의제기 <span class="lbl-sub">복수 선택 — 전환의 핵심</span></label>
+      <div class="chipset" id="ot_objections"></div>
+      <label>주 운동 가능 횟수</label>
+      <div class="chipset" id="ot_availability"></div>
+      <label>예산 여건</label>
+      <div class="chipset" id="ot_budget"></div>
+      <label>성향 <span class="lbl-sub">공략 톤을 맞춥니다</span></label>
+      <div class="chipset" id="ot_personality"></div>
+      <label>체험 수업 반응<textarea id="ot_reaction" rows="2" placeholder="예: 힘들어했지만 끝나고 개운하다고 함, 표정 밝음"></textarea></label>
+      <label>다음 컨택 예정일<input id="ot_nextDate" type="date" /></label>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button class="btn-ghost" data-close>취소</button>
+        <button id="saveOtBtn" class="btn-gold">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
