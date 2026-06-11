@@ -131,9 +131,33 @@ function subscribeMembers() {
 }
 
 // ---------- 회원 목록 ----------
+let currentFilter = "all";  // all | PT | OT
+
+function renderFilterBar() {
+  const pt = members.filter(m => (m.type || "PT") === "PT").length;
+  const ot = members.filter(m => m.type === "OT").length;
+  const tabs = [
+    { k: "all", label: "전체", n: members.length, cls: "" },
+    { k: "PT", label: "🏋️ PT", n: pt, cls: "pt" },
+    { k: "OT", label: "🎯 OT", n: ot, cls: "ot" }
+  ];
+  $("filterBar").innerHTML = tabs.map(t =>
+    `<div class="fchip ${t.cls} ${currentFilter === t.k ? "on" : ""}" data-f="${t.k}">${t.label} <span class="n">${t.n}</span></div>`
+  ).join("");
+  $("filterBar").querySelectorAll(".fchip").forEach(c => c.onclick = () => {
+    currentFilter = c.dataset.f;
+    renderList();
+  });
+}
+
 function renderList() {
+  renderFilterBar();
   const kw = $("searchInput").value.trim().toLowerCase();
-  const list = members.filter(m => !kw || (m.name || "").toLowerCase().includes(kw));
+  const list = members.filter(m => {
+    const type = m.type || "PT";
+    if (currentFilter !== "all" && type !== currentFilter) return false;
+    return !kw || (m.name || "").toLowerCase().includes(kw);
+  });
   $("emptyHint").classList.toggle("hidden", members.length > 0);
   $("memberList").innerHTML = list.map(m => {
     const type = m.type || "PT";
