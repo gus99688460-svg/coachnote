@@ -185,3 +185,37 @@ body {
 .ot-empty { text-align: center; color: var(--muted); padding: 30px 0; line-height: 1.7; }
 .btn-row { display: flex; gap: 10px; margin: 4px 0 20px; }
 .btn-row .btn-gold, .btn-row .btn-ghost { flex: 1; text-align: center; }
+
+/* ===== PC · 넓은 화면 (컴퓨터에서 특이사항 편하게 입력) ===== */
+@media (min-width: 900px) {
+  .app { max-width: 1040px; padding-bottom: 60px; }
+  .topbar { padding: 16px 24px; }
+  .brand-sm { font-size: 19px; }
+  .view { padding: 24px 28px; }
+
+  /* 검색·필터 한 줄 정렬 */
+  #searchInput { font-size: 16px; }
+
+  /* 회원 카드 2~3열 그리드 */
+  .member-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .member-card { padding: 16px 18px; }
+
+  /* 상세: 제목·여백 키우기 */
+  .detail-name { font-size: 28px; }
+  .block { padding: 16px 18px; }
+
+  /* 모달: 넓게 + 가운데 + 입력칸 크게 (키보드로 길게 쓰기 좋게) */
+  .modal-box { max-width: 700px; padding: 28px 26px; }
+  .modal-box h3 { font-size: 20px; }
+  .modal-box label { font-size: 13.5px; }
+  .modal-box input, .modal-box textarea { font-size: 15.5px; padding: 12px 13px; }
+  .modal-box textarea { min-height: 84px; }
+  /* 일지 입력은 더 넉넉하게 */
+  #l_workout, #l_condition, #l_emotion, #l_next,
+  #m_injury, #m_restriction, #m_personality { min-height: 96px; }
+}
+
+@media (min-width: 1240px) {
+  .app { max-width: 1160px; }
+  .member-list { grid-template-columns: repeat(3, 1fr); }
+}
