@@ -51,7 +51,7 @@ const OT_OPT = {
   motives: ["체중감량","체형교정","통증완화","체력향상","자세교정","대회준비","재활","자신감·멘탈"],
   experience: ["입문(운동 처음)","초급(가끔 혼자)","중급(루틴 있음)","경험자"],
   objections: ["가격 부담","시간 없음","효과 의심","혼자 가능 생각","타 센터 비교","지속 자신없음","낯가림"],
-  availability: ["주 1~2회","주 3회","주 4회+"],
+  availability: ["주 1회","주 2회","주 3회","주 4회+"],
   budget: ["여유","보통","빠듯"],
   personality: ["감정·공감형","논리·데이터형","성과·목표형","관계·라포형"]
 };
@@ -361,23 +361,36 @@ function generatePlan(ot) {
       ? "관심은 있으나 결정적 이의가 남아 있어요. 아래 이의제기부터 풀고 클로징하세요."
       : "지금 강하게 밀면 부담을 느낍니다. 작은 약속(단기·소수 회차)으로 신뢰부터 쌓으세요.";
 
-  // 추천 패키지
+  // 추천 패키지 — 트레이너가 입력한 '주 운동 가능 횟수'를 그대로 반영
   const pkg = [];
-  const perWeek = avail === "주 4회+" ? 4 : avail === "주 3회" ? 3 : 2;
+  const perWeek = avail === "주 4회+" ? 4 : avail === "주 3회" ? 3
+                : avail === "주 2회" ? 2 : avail === "주 1회" ? 1 : 0;
   const goalWeight = motives.some(x => ["체중감량", "체형교정", "자세교정"].includes(x));
   if (exp.startsWith("입문"))
     pkg.push("입문자 — 첫 8~10회는 '자세·기본기 집중'으로 부담 없이 시작 후 연장 유도");
   if (budget === "빠듯")
     pkg.push("예산이 빠듯하니 큰 패키지 대신 단기 10~16회 먼저 제안 → 성과 확인 후 연장");
+  else if (perWeek === 0)
+    pkg.push("주 운동 가능 횟수를 먼저 확인 — 회원 여건에 맞춰 회차·기간을 설계하세요");
+  else if (perWeek === 1)
+    pkg.push("회원이 '주 1회만 가능'이라 했으니 주 1회 기준으로 설계 — 12주 ≈ 12회로 시작하되, 효과 속도가 느린 만큼 기간을 넉넉히(약 3개월+) 잡아 제안");
   else
-    pkg.push(`목표·여건상 주 ${perWeek}회 × 12주 ≈ ${perWeek * 12}회 패키지가 표준 추천`);
+    pkg.push(`여건상 주 ${perWeek}회 × 12주 ≈ ${perWeek * 12}회 패키지가 표준 추천`);
   if (goalWeight)
     pkg.push("체중·체형 목표는 최소 8~12주 꾸준함이 관건 — '한 달은 짧다'를 미리 인지시키기");
-  if (perWeek <= 2)
+  if (perWeek === 1)
+    pkg.push("주 1회는 수업 사이 공백이 크니, 자가운동 2~3개를 '숙제'로 정해 다음 수업에 점검 — 사실상 주 2~3회 효과를 노린다");
+  else if (perWeek === 2)
     pkg.push("주 2회라면 수업 외 자가운동 1개를 숙제로 줘 효과를 보강");
 
   const angles = motives.map(x => OT_ANGLE[x]).filter(Boolean);
-  const objections = objs.map(o => ({ q: o, a: OT_OBJ[o] })).filter(x => x.a);
+  // 이의제기 대응 — '시간 없음'은 가능 횟수에 맞춰 멘트를 동적으로 생성
+  const objections = objs.map(o => {
+    let a = OT_OBJ[o];
+    if (o === "시간 없음" && perWeek)
+      a = `주 ${perWeek}회 ${perWeek === 1 ? "40~50분" : "40분"}이면 충분히 효과 납니다. 바쁠수록 PT가 시간 효율적 — 고정 시간 슬롯부터 먼저 확보`;
+    return { q: o, a };
+  }).filter(x => x.a);
   const persTone = OT_TONE[ot.personality] || "";
 
   return { score, level, coach, pkg, angles, objections, persTone };
